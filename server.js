@@ -57,7 +57,6 @@ function onHttpsServerUpgarde(req, socket){
             websocket.init();
             break;
         default:
-            log("nope");
     }
 }
 
