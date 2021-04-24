@@ -1,35 +1,37 @@
-module.exports = function Router(req, method){
-    this.method = method;
-    this.req = req;
+const fs = require('fs');
+module.exports = function Router(){
     this.mimeLookup = {
         'js': 'text/javascript',
         'css': 'text/css',
         'png': 'image/png'
     }
-    if(this.method === 'GET'){
-        switch(this.url){
-            case '/':
-                res.writeHead(200, {'Content-Type': 'text/html'});
-                fs.createReadStream('./index.html').pipe(res);
-                //if(req.headers.host.replace('.yatata.xyz','') === "chat");
-                break;
-            default:
-                const extName = url.split('.')[1];
-                if(this.mimeLookup[extName]){
-                    res.writeHead(200, {'Content-Type': this.mimeLookup[extName]});
-                    fs.createReadStream('.' + url).pipe(res);
-                }
-                else{
-                    res.writeHead(404, {'Content-Type': 'text/html'});
-                    res.end("404 page not found");
-                }
+    this.reqRoute = {
+        'GET':{},
+        'POST':{}
+    }
+
+    this.add = (method, url, callback) => this.reqRoute[method][url] = callback;
+
+    this.onRequest = (req, res) =>{
+        const {method, url} = req;
+        this.req = req;
+        this.res = res;
+        this.method = method;
+        this.url = url;
+        const resFunc = this.reqRoute[this.method][this.url];
+        if(resFunc) resFunc();
+        else this.defaultRes();
+    }
+
+    this.defaultRes = () => {
+        const extName = this.url.split('.')[1];
+        if(this.mimeLookup[extName]){
+            this.res.writeHead(200, {'Content-Type': this.mimeLookup[extName]});
+            fs.createReadStream('.' + this.url).pipe(this.res);
+        }
+        else{
+            this.res.writeHead(404, {'Content-Type': 'text/html'});
+            this.res.end("404 page not found");
         }
     }
-    else if(method === 'POST'){
-
-    }
-}
-
-function router(method, url, callback){
-    
 }
