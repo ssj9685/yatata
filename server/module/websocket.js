@@ -4,8 +4,8 @@ const crypto=  require('crypto');
  * Reference
  * https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
  */
-module.exports = function Websocket(clients){
-	this.clients = clients;
+module.exports = function Websocket(socketManager){
+	this.socketManager = socketManager;
 	this.init = (req, socket) => {
 		/**
 		 * init data frame 1000(FIN) 0010(OP bin)
@@ -38,10 +38,8 @@ module.exports = function Websocket(clients){
 				'Upgrade: websocket\r\n'+
 				'Connection: Upgrade\r\n'+
 				'Sec-WebSocket-Accept: '+key+'\r\n'+
-				'\r\n')
-		if(this.clients && !this.clients.has(this.socket)){
-			this.clients.set(this.socket,this.clients.size);
-		}
+				'\r\n');
+		this.socketManager.set(this.socket, this.socketManager.connectedSockets.size);
 	}
 	this.connect = () => {
 		/**
@@ -63,9 +61,7 @@ module.exports = function Websocket(clients){
 	}
 	this.onClose = () => {
 		this.socket.on('close',()=>{
-            if(this.clients){
-                this.clients.delete(this.socket);
-            }
+            this.socketManager.delete(this.socket);
         })
 	}
 
@@ -97,11 +93,7 @@ module.exports = function Websocket(clients){
 			sendBuf[2] = encoded[2];
 			sendBuf[3] = encoded[3];
 			sendBuf = Buffer.concat([sendBuf, decoded]);
-			for(const sock of this.clients.keys()){
-				if(this.socket!==sock){
-					sock.write(sendBuf);
-				}
-			}
+			this.socketManager.sendBufToOthers(this.socket, sendBuf);
 		}
 		else if(length === 127){
 			length = encoded.readBigUInt64BE(2);

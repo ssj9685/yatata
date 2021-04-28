@@ -1,7 +1,8 @@
 const https = require('https');
 const fs = require('fs');
-const Websocket = require('./server/module/websocket');
 const Router = require('./server/module/router');
+const Websocket = require('./server/module/websocket');
+const socketManager = require('./server/module/socketManager');
 const log = require('./server/module/logger');
 
 const options = {
@@ -26,12 +27,12 @@ httpsServer.on('request',router.onRequest);
 httpsServer.on('upgrade', onHttpsServerUpgarde);
 httpsServer.listen(443, () => log("Server running on port 443"));
 
-const clients = new Map();
+const socketManager = new SocketManager();
 function onHttpsServerUpgarde(req, socket){
     const {url} = req;
     switch(url){
         case "/webrtc":
-            const websocket = new Websocket(clients);
+            const websocket = new Websocket(socketManager);
             websocket.init(req, socket);
             break;
         default:
