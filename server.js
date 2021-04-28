@@ -2,7 +2,7 @@ const https = require('https');
 const fs = require('fs');
 const Router = require('./server/module/router');
 const Websocket = require('./server/module/websocket');
-const socketManager = require('./server/module/socketManager');
+const SocketManager = require('./server/module/socketManager');
 const log = require('./server/module/logger');
 
 const options = {
@@ -23,7 +23,7 @@ router.add('GET','/',()=>{
 })
 
 const httpsServer = https.createServer(options);
-httpsServer.on('request',router.onRequest);
+httpsServer.on('request', router.onRequest);
 httpsServer.on('upgrade', onHttpsServerUpgarde);
 httpsServer.listen(443, () => log("Server running on port 443"));
 
