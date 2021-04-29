@@ -63,14 +63,12 @@ class WebRTCService{
 		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.localOnNegotiationNeeded);
-		alert("room created!");
 	}
 
 	createRemotePeer = () => {
 		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.remoteOnNegotiationNeeded);
-		alert("request join!");
 	}
 
 	onAddTrack = e => {
@@ -114,6 +112,7 @@ class WebRTCService{
 		const videos = document.querySelectorAll('video');
 		for(const video of videos){
 			document.body.removeChild(video);
+			alert('all connection removed!');
 		}
 	}
 }

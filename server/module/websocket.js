@@ -87,7 +87,6 @@ module.exports = function Websocket(socketManager){
 			decoded = Buffer.alloc(length);
 			for(let i=0;i<4;++i)mask[i]=encoded[i+4];
 			for(let i=0;i<length;++i)decoded[i] = encoded[i+8] ^ mask[i%4];
-			console.log(decoded.toString('utf8'));
 			let sendBuf = Buffer.alloc(4);
 			sendBuf[0] = 0x81;
 			sendBuf[1] = 126;
