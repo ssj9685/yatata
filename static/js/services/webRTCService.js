@@ -72,14 +72,23 @@ class WebRTCService{
 	}
 
 	onAddTrack = e => {
-		const video = document.createElement('video');
-		document.body.appendChild(video);
-		video.style.cssText = "position:absolute;left:0;top:0;z-index:10000;width:33vw;height:33vh;"
-		video.id = "test";
-		video.playsInline = true;
-		video.autoplay = true;
-		if (video.srcObject !== e.streams[0]) {
-			video.srcObject = e.streams[0];
+		const prevVideo = document.getElementById("opponent");
+		let video = null;
+		if(prevVideo){
+			if (prevVideo.srcObject !== e.streams[0]) {
+				prevVideo.srcObject = e.streams[0];
+			}
+		}
+		else{
+			video = document.createElement('video');
+			video.id = "opponent";
+			video.playsInline = true;
+			video.autoplay = true;
+			video.style.cssText = "position:absolute;left:0;top:0;z-index:10000;width:33vw;height:33vh;"
+			document.body.appendChild(video);
+			if (video.srcObject !== e.streams[0]) {
+				video.srcObject = e.streams[0];
+			}
 		}
 	}
 
