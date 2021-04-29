@@ -11,6 +11,7 @@ class WebRTCService{
 				video: true
 			}
 		)
+		.catch(e=>alert("There is no camara"))
 		.then(stream => this.stream = stream);
 	}
 
@@ -20,7 +21,7 @@ class WebRTCService{
 			if(this.targetPeer){
 				if(message.type === "offer"){
 					this.targetPeer.setRemoteDescription(message).catch(e=>{
-						
+						alert("offer failaure: ",e.name);
 					});
 					this.targetPeer.createAnswer()
 					.then(description => {
@@ -30,17 +31,17 @@ class WebRTCService{
 				}
 				else if(message.type === "answer"){
 					this.targetPeer.setRemoteDescription(message).catch(e=>{
-						
+						alert("answer failaure: ",e.name);
 					});
 				} 
 				else if(message.ice){
 					this.targetPeer.addIceCandidate(message.ice).catch(e=>{
-						console.log("failaure: ",e.name);
+						alert("ice failaure: ",e.name);
 					});
 				}
 			}
 			else{
-				console.log("cannot join the room");
+				alert("cannot join the room");
 			}
 		}
 	}
@@ -53,9 +54,7 @@ class WebRTCService{
 		});
 		this.localPeers.push(pc);
 		this.stream.getTracks()
-		.forEach(track => {
-			pc.addTrack(track, this.stream);
-		});
+		.forEach(track => pc.addTrack(track, this.stream));
 		pc.addEventListener('icecandidate', this.onIceCandidate);
 		return pc;
 	}
@@ -64,12 +63,14 @@ class WebRTCService{
 		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.localOnNegotiationNeeded);
+		alert("room created!");
 	}
 
 	createRemotePeer = () => {
 		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.remoteOnNegotiationNeeded);
+		alert("request join!");
 	}
 
 	onAddTrack = e => {
@@ -107,6 +108,12 @@ class WebRTCService{
 	closeAllPeerConnection = () => {
 		for(const pc of this.localPeers){
 			pc.close();
+		}
+		this.localPeers = new Array();
+		this.targetPeer = null;
+		const videos = document.querySelectorAll('video');
+		for(const video of videos){
+			document.body.removeChild(video);
 		}
 	}
 }
