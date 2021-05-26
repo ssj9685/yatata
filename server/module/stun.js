@@ -8,6 +8,9 @@ udpSocket.on('error', err => {
 
 udpSocket.on('message', (udpMessage, rinfo) => {
     console.log(udpMessage, rinfo);
+    const header = udpMessage;
+    header.writeUInt16BE(0x0101,0);
+    udpSocket.send(header,rinfo.port,rinfo.address);
 });
 
 udpSocket.on('listening',()=>{

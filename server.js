@@ -15,7 +15,6 @@ router.add('GET','/',()=>{
     if(router.req.headers.host.replace('.yatata.xyz','') === "chat"){
         router.res.writeHead(200, {'Content-Type': 'text/html'});
         fs.createReadStream('./index.html').pipe(router.res);
-        console.log(router.req);
     }
     else{
         router.res.writeHead(404, {'Content-Type': 'text/html'});
@@ -42,6 +41,6 @@ function onHttpsServerUpgarde(req, socket){
 
 const http = require('http');
 http.createServer((req, res) => {
-    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.writeHead(301, { "Location": "https://" + req.headers.host + req.url });
     res.end();
 }).listen(80);
