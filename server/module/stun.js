@@ -8,8 +8,10 @@ udpSocket.on('message', (udpMessage, rinfo) => {
     console.log(udpMessage, rinfo);
     const header = udpMessage;
     header.writeUInt16BE(0x0101,0);
-    const address = Buffer.from(JSON.stringify(rinfo));
     header.writeUInt16BE(address.length, 2);
+    //const attrValue = Buffer.alloc(8);
+    //attrValue.writeUIntBE(0x00,0,1);
+    //const attribute = Buffer.alloc()
     let sendBuf = Buffer.concat([header, address]);
     udpSocket.send(sendBuf, rinfo.port, rinfo.address);
 });
