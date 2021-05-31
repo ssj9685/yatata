@@ -70,9 +70,10 @@ module.exports = function Websocket(socketManager){
 		 * 1(MASK) 0000010(length) & 0 1111111 for remove mask key
 		 */
 		let length = encoded[1]&0x7F;
+		console.log("encoded:",encoded, "length:",length);
 		const mask = Buffer.alloc(4);
 		let decoded;
-		if(length <= 125){
+		if(length < 126){
 			decoded = Buffer.alloc(length);
 			for(let i=0;i<4;++i)mask[i]=encoded[i+2];
 			for(let i=0;i<length;++i)decoded[i] = encoded[i+6] ^ mask[i%4];
@@ -101,6 +102,7 @@ module.exports = function Websocket(socketManager){
 			decoded = Buffer.alloc(length);
 			for(let i=0;i<4;++i)mask[i]=encoded[i+8];
 			for(let i=0;i<length;++i)decoded[i] = encoded[i+14] ^ mask[i%4];
+			console.log(decoded.toString('utf8'));
 		}
 	}
 }
