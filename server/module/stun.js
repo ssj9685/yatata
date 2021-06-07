@@ -25,6 +25,6 @@ module.exports = function Stun(){
         let sendBuf = Buffer.concat([header, attribute, attrValue]);
         udpSocket.send(sendBuf, rinfo.port, rinfo.address);
     });
-    
-    this.udpSocket.bind(41234);
+
+    this.bind = port => this.udpSocket.bind(port);
 }

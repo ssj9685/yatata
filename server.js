@@ -2,6 +2,7 @@ const https = require('https');
 const fs = require('fs');
 const Router = require('./server/module/router');
 const Websocket = require('./server/module/websocket');
+const Stun = require('./server/module/stun');
 const SocketManager = require('./server/module/socketManager');
 const log = require('./server/module/logger');
 
@@ -44,3 +45,6 @@ http.createServer((req, res) => {
     res.writeHead(301, { "Location": "https://" + req.headers.host + req.url });
     res.end();
 }).listen(80);
+
+const stun = new Stun();
+stun.bind(41234);
