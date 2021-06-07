@@ -23,7 +23,7 @@ module.exports = function Stun(){
         attribute.writeUIntBE(0x0020,0,2); //attribute type
         attribute.writeUIntBE(8,2,2);
         let sendBuf = Buffer.concat([header, attribute, attrValue]);
-        udpSocket.send(sendBuf, rinfo.port, rinfo.address);
+        this.udpSocket.send(sendBuf, rinfo.port, rinfo.address);
     });
 
     this.bind = port => this.udpSocket.bind(port);
