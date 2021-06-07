@@ -11,18 +11,21 @@ class WebRTCService{
 				video: true
 			}
 		)
-		.catch(e=>alert("There is no camara"))
+		.catch(e=>alert("There is no camara. please connect and refresh"))
 		.then(stream => this.stream = stream);
 	}
 
 	onMessage = e => {
 		if(typeof e.data === "string"){
 			const message = JSON.parse(e.data);
+			console.log(message);
 			if(this.targetPeer){
 				if(message.type === "offer"){
-					this.targetPeer.setRemoteDescription(message).catch(e=>{
+					this.targetPeer.setRemoteDescription(message)
+					.catch(e=>{
 						alert("offer failaure: ",e.name);
 					});
+
 					this.targetPeer.createAnswer()
 					.then(description => {
 						this.targetPeer.setLocalDescription(description);
@@ -30,12 +33,14 @@ class WebRTCService{
 					});
 				}
 				else if(message.type === "answer"){
-					this.targetPeer.setRemoteDescription(message).catch(e=>{
+					this.targetPeer.setRemoteDescription(message)
+					.catch(e=>{
 						alert("answer failaure: ",e.name);
 					});
 				} 
 				else if(message.ice){
-					this.targetPeer.addIceCandidate(message.ice).catch(e=>{
+					this.targetPeer.addIceCandidate(message.ice)
+					.catch(e=>{
 						alert("ice failaure: ",e.name);
 					});
 				}
