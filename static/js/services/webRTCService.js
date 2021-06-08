@@ -54,10 +54,11 @@ class WebRTCService{
 			]
 		});
 		this.localPeers.push(pc);
-		this.stream.getTracks()
-		.catch(err=>console.log(err))
-		.forEach(track => pc.addTrack(track, this.stream));
-		pc.addEventListener('icecandidate', this.onIceCandidate);
+		if(stream){
+			this.stream.getTracks()
+			.forEach(track => pc.addTrack(track, this.stream));
+			pc.addEventListener('icecandidate', this.onIceCandidate);
+		}
 		return pc;
 	}
 
