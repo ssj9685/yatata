@@ -83,7 +83,8 @@ class WebRTCService{
 			prevVideo.srcObject = e.streams[0];
 		}
 		else{
-			const container = document.querySelector('video-container').getShadow();
+			const shadow = document.querySelector('video-container').getShadow();
+			const videoContainer = shadow.getElementById('videoContainer');
 			video = document.createElement('video');
 			video.id = "opponent";
 			video.playsInline = true;
@@ -92,7 +93,7 @@ class WebRTCService{
 				width:33vw;
 				height:33vh;
 			`
-			container.appendChild(div);
+			videoContainer.appendChild(video);
 			video.srcObject = e.streams[0];
 		}
 		this.webSocket.close();
