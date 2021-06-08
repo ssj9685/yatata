@@ -54,7 +54,7 @@ class WebRTCService{
 			]
 		});
 		this.localPeers.push(pc);
-		if(stream){
+		if(this.stream){
 			this.stream.getTracks()
 			.forEach(track => pc.addTrack(track, this.stream));
 			pc.addEventListener('icecandidate', this.onIceCandidate);
