@@ -2,6 +2,7 @@ class WebRTCService{
 	constructor(){
 		this.localPeers = new Array();
 		this.targetPeer = null;
+		this.channels = new Array();
 		this.webSocket = new WebSocket("wss://chat.yatata.xyz/webrtc");
 		this.stream = null;
 		navigator.mediaDevices.getUserMedia(
@@ -30,18 +31,34 @@ class WebRTCService{
 						this.targetPeer.setLocalDescription(description);
 						this.webSocket.send(JSON.stringify(description));
 					});
+					let channel = this.targetPeer.createDataChannel('chat');
+					console.log(channel);
+					channel.addEventListener('open',()=>{
+						this.webSocket.close();
+						channel.send('offer');
+					});
+					channel.addEventListener('message', e=>{
+						console.log(e.data);
+					})
+					this.channels.push(channel);
 				}
 				else if(message.type === "answer"){
 					this.targetPeer.setRemoteDescription(message)
-					.catch(e=>{
-						alert("answer failaure: ",e.name);
-					});
+					.catch(e=>alert("answer failaure: ", e.name));
+					this.targetPeer.addEventListener('datachannel',e=>{
+						let channel = e.channel;
+						channel.addEventListener('open',e=>{
+							channel.send('answer');
+						});
+						channel.addEventListener('message',e=>{
+							console.log(e.data);
+						});
+						this.channels.push(channel);
+					})
 				} 
 				else if(message.ice){
 					this.targetPeer.addIceCandidate(message.ice)
-					.catch(e=>{
-						alert("ice failaure: ",e.name);
-					});
+					.catch(e=>alert("ice failaure: ", e.name));
 				}
 			}
 		}
@@ -77,13 +94,13 @@ class WebRTCService{
 	}
 
 	onAddTrack = e => {
-		const prevVideo = document.getElementById("opponent");
+		const shadow = document.querySelector('video-container').getShadow();
+		const prevVideo = shadow.getElementById("opponent");
 		let video = null;
 		if(prevVideo){
 			prevVideo.srcObject = e.streams[0];
 		}
 		else{
-			const shadow = document.querySelector('video-container').getShadow();
 			const videoContainer = shadow.getElementById('videoContainer');
 			video = document.createElement('video');
 			video.id = "opponent";
@@ -96,7 +113,6 @@ class WebRTCService{
 			videoContainer.appendChild(video);
 			video.srcObject = e.streams[0];
 		}
-		this.webSocket.close();
 	}
 
 	localOnNegotiationNeeded = e => {
