@@ -127,7 +127,7 @@ class WebRTCService{
 		const videos = document.querySelectorAll('video');
 		for(const video of videos){
 			document.body.removeChild(video);
-			alert('all connection removed!');
 		}
+		alert('all connection reset!');
 	}
 }
