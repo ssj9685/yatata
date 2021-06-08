@@ -14,7 +14,7 @@ class ButtonComponent extends HTMLElement{
         div.innerHTML = `
             <div>
                 <button id="createbtn">create</button>
-                <button id="joinbtn">join</button>                
+                <button id="joinbtn">join</button>
                 <button id="hangupbtn">hangup</button>
             </div>
         `
@@ -22,6 +22,7 @@ class ButtonComponent extends HTMLElement{
         shadow.appendChild(div);
         this.webRtcHandler();
     }
+    
     connectedCallback() {
         
     }

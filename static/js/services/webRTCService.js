@@ -3,7 +3,6 @@ class WebRTCService{
 		this.localPeers = new Array();
 		this.targetPeer = null;
 		this.webSocket = new WebSocket("wss://chat.yatata.xyz/webrtc");
-		this.webSocket.addEventListener('message', this.onMessage);
 		this.stream = null;
 		navigator.mediaDevices.getUserMedia(
 			{
@@ -45,9 +44,6 @@ class WebRTCService{
 					});
 				}
 			}
-			else{
-				alert("cannot join the room");
-			}
 		}
 	}
 
@@ -65,12 +61,14 @@ class WebRTCService{
 	}
 
 	createLocalPeer = () => {
+		this.webSocket.addEventListener('message', this.onMessage);
 		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.localOnNegotiationNeeded);
 	}
 
 	createRemotePeer = () => {
+		this.webSocket.addEventListener('message', this.onMessage);
 		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.remoteOnNegotiationNeeded);
@@ -83,14 +81,19 @@ class WebRTCService{
 			prevVideo.srcObject = e.streams[0];
 		}
 		else{
+			const container = document.querySelector('video-container').getShadow();
 			video = document.createElement('video');
 			video.id = "opponent";
 			video.playsInline = true;
 			video.autoplay = true;
-			video.style.cssText = "position:absolute;left:0;top:0;z-index:10000;width:33vw;height:33vh;"
-			document.body.appendChild(video);
+			video.style.cssText = `
+				width:33vw;
+				height:33vh;
+			`
+			container.appendChild(div);
 			video.srcObject = e.streams[0];
 		}
+		this.webSocket.close();
 	}
 
 	localOnNegotiationNeeded = e => {

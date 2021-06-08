@@ -1,11 +1,8 @@
-scripter("components/pages/buttonComponent.js");
+scripter("components/buttonComponent.js");
 
 class ComponentActions{
     constructor(){
-        this.pageElementDefineHandler();
-    }
-
-    pageElementDefineHandler = () => {
-        customElements.define('index-component', ButtonComponent);
+        customElements.define('button-component', ButtonComponent);
+        customElements.define('video-container', VideoContainer);
     }
 }
