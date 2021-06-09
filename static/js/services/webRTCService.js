@@ -82,10 +82,9 @@ class WebRTCService{
 				position: fixed;
 				bottom: 0;
 				right: 0;
-				width:33vw;
-				height:auto;
 			`,
-			stream: this.stream
+			stream: this.stream,
+			muted: true
 		});
 		return pc;
 	}
@@ -111,11 +110,12 @@ class WebRTCService{
 				width:66vw;
 				height:auto;
 			`,
-			stream: e.streams[0]
+			stream: e.streams[0],
+			muted: false
 		});
 	}
 
-	addStream = ({id, cssText, stream}) => {
+	addStream = ({id, cssText, stream, muted}) => {
 		const shadow = document.querySelector('video-container').getShadow();
 		const prevVideo = shadow.getElementById(id);
 		if(prevVideo){
@@ -127,10 +127,17 @@ class WebRTCService{
 			video.id = id;
 			video.playsInline = true;
 			video.autoplay = true;
+			video.muted = muted;
 			video.style.cssText = cssText;
 			videoContainer.appendChild(video);
 			video.srcObject = stream;
 		}
+	}
+
+	removeAllStreams = () => {
+		const shadow = document.querySelector('video-container').getShadow();
+		const videoContainer = shadow.getElementById('videoContainer');
+		videoContainer.innerText = '';
 	}
 
 	localOnNegotiationNeeded = e => {
@@ -163,6 +170,7 @@ class WebRTCService{
 		for(const video of videos){
 			document.body.removeChild(video);
 		}
+		this.removeAllStreams();
 		alert('all connection reset!');
 	}
 }
