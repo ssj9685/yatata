@@ -74,8 +74,8 @@ class WebRTCService{
 		if(this.stream){
 			this.stream.getTracks()
 			.forEach(track => pc.addTrack(track, this.stream));
-			pc.addEventListener('icecandidate', this.onIceCandidate);
 		}
+		pc.addEventListener('icecandidate', this.onIceCandidate);
 		return pc;
 	}
 
