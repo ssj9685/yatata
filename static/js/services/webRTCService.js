@@ -76,6 +76,17 @@ class WebRTCService{
 			.forEach(track => pc.addTrack(track, this.stream));
 		}
 		pc.addEventListener('icecandidate', this.onIceCandidate);
+		this.addStream({
+			id: 'local',
+			cssText: `
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				width:33vw;
+				height:auto;
+			`,
+			stream: e.stream[0]
+		});
 		return pc;
 	}
 
@@ -94,24 +105,31 @@ class WebRTCService{
 	}
 
 	onAddTrack = e => {
+		this.addStream({
+			id: 'remote',
+			cssText: `
+				width:66vw;
+				height:auto;
+			`,
+			stream: e.stream[0]
+		});
+	}
+
+	addStream = ({id, cssText, stream}) => {
 		const shadow = document.querySelector('video-container').getShadow();
-		const prevVideo = shadow.getElementById("opponent");
-		let video = null;
+		const prevVideo = shadow.getElementById(id);
 		if(prevVideo){
-			prevVideo.srcObject = e.streams[0];
+			prevVideo.srcObject = stream;
 		}
 		else{
 			const videoContainer = shadow.getElementById('videoContainer');
-			video = document.createElement('video');
-			video.id = "opponent";
+			const video = document.createElement('video');
+			video.id = id;
 			video.playsInline = true;
 			video.autoplay = true;
-			video.style.cssText = `
-				width:33vw;
-				height:33vh;
-			`
+			video.style.cssText = cssText;
 			videoContainer.appendChild(video);
-			video.srcObject = e.streams[0];
+			video.srcObject = stream;
 		}
 	}
 
