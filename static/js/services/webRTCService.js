@@ -111,7 +111,7 @@ class WebRTCService{
 				width:66vw;
 				height:auto;
 			`,
-			stream: e.stream[0]
+			stream: e.streams[0]
 		});
 	}
 
