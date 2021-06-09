@@ -80,6 +80,8 @@ class WebRTCService{
 			id: 'local',
 			cssText: `
 				position: fixed;
+				width: 25vw;
+				height: auto;
 				bottom: 0;
 				right: 0;
 			`,
@@ -107,7 +109,7 @@ class WebRTCService{
 		this.addStream({
 			id: 'remote',
 			cssText: `
-				width:66vw;
+				width:auto;
 				height:auto;
 			`,
 			stream: e.streams[0],
