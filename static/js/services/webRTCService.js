@@ -85,7 +85,7 @@ class WebRTCService{
 				width:33vw;
 				height:auto;
 			`,
-			stream: e.stream[0]
+			stream: this.stream
 		});
 		return pc;
 	}
