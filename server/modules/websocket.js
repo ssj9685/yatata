@@ -1,11 +1,12 @@
 const crypto=  require('crypto');
+const SocketManager = require('./socketManager');
 
 /**
  * Reference
  * https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
  */
-module.exports = function Websocket(socketManager){
-	this.socketManager = socketManager;
+module.exports = function Websocket(){
+	this.socketManager = new SocketManager();
 	this.init = (req, socket) => {
 		/**
 		 * init data frame 1000(FIN) 0010(OP bin)

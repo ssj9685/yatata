@@ -1,10 +1,11 @@
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
-const Router = require('./server/module/router');
-const Websocket = require('./server/module/websocket');
-const Stun = require('./server/module/stun');
-const SocketManager = require('./server/module/socketManager');
-const log = require('./server/module/logger');
+const Router = require('./server/modules/router');
+const log = require('./server/modules/logger');
+const Websocket = require('./server/modules/websocket');
+const Stun = require('./server/stun');
+const Turn = require('./server/turn');
 
 const options = {
     key: fs.readFileSync('./server/ssl/keys/privkey1.pem'),
@@ -23,28 +24,26 @@ router.add('GET','/',()=>{
     }
 })
 
+const onHttpsServerUpgarde = (req, socket) => {
+    const {url} = req;
+    if(url==='/webrtc'){
+        const websocket = new Websocket();
+        websocket.init(req,socket);
+    }
+}
+
 const httpsServer = https.createServer(options);
 httpsServer.on('request', router.onRequest);
 httpsServer.on('upgrade', onHttpsServerUpgarde);
 httpsServer.listen(443, () => log("Server running on port 443"));
 
-const socketManager = new SocketManager();
-function onHttpsServerUpgarde(req, socket){
-    const {url} = req;
-    switch(url){
-        case "/webrtc":
-            const websocket = new Websocket(socketManager);
-            websocket.init(req, socket);
-            break;
-        default:
-    }
-}
-
-const http = require('http');
 http.createServer((req, res) => {
     res.writeHead(301, { "Location": "https://" + req.headers.host + req.url });
     res.end();
 }).listen(80);
 
 const stun = new Stun();
-stun.bind(41234);
+stun.bind(3478);
+
+const turn = new Turn();
+turn.bind(41234);

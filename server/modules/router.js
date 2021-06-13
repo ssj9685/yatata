@@ -1,4 +1,5 @@
 const fs = require('fs');
+
 module.exports = function Router(){
     this.mimeLookup = {
         'js': 'text/javascript',

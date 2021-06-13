@@ -67,7 +67,9 @@ class WebRTCService{
 	initPeer = () => {
 		const pc = new RTCPeerConnection({
 			iceServers:[
-				{'urls': 'stun:chat.yatata.xyz:41234'}
+				{
+					'urls': ['stun:chat.yatata.xyz:3478', 'stun:chat.yatata.xyz:41234']
+				}
 			]
 		});
 		this.localPeers.push(pc);
