@@ -7,6 +7,7 @@ const SocketManager = require('./servers/modules/socketManager');
 const Websocket = require('./servers/modules/websocket');
 const Stun = require('./servers/stun');
 const Turn = require('./servers/turn');
+const Relay = require('./servers/relay');
 
 const options = {
     key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
@@ -49,3 +50,6 @@ stun.bind(3478);
 
 const turn = new Turn();
 turn.bind(41234);
+
+const relay = new Relay();
+relay.bind(41235);
