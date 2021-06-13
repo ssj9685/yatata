@@ -21,7 +21,7 @@ module.exports = function Turn(){
         for(let i=0,j=ip.length;i<j;++i)
             attrValue.writeUIntBE(Number(ip[i])^magicCookieBuf[i],i+4,1);
         const attribute = Buffer.alloc(4);
-        attribute.writeUIntBE(0x0016,0,2); //attribute type
+        attribute.writeUIntBE(0x0020,0,2); //attribute type
         attribute.writeUIntBE(8,2,2);
         let sendBuf = Buffer.concat([header, attribute, attrValue]);
         this.udpSocket.send(sendBuf, rinfo.port, rinfo.address);

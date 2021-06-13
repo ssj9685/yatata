@@ -1,12 +1,10 @@
 const crypto=  require('crypto');
-const SocketManager = require('./socketManager');
-
 /**
  * Reference
  * https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
  */
-module.exports = function Websocket(){
-	this.socketManager = new SocketManager();
+module.exports = function Websocket(socketManager){
+	this.socketManager = socketManager;
 	this.init = (req, socket) => {
 		/**
 		 * init data frame 1000(FIN) 0010(OP bin)
@@ -40,7 +38,7 @@ module.exports = function Websocket(){
 				'Connection: Upgrade\r\n'+
 				'Sec-WebSocket-Accept: '+key+'\r\n'+
 				'\r\n');
-		this.socketManager.set(this.socket, this.socketManager.connectedSockets.size);
+		this.socketManager.set(this.socket);
 	}
 	this.connect = () => {
 		/**

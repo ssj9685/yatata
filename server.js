@@ -1,15 +1,16 @@
 const https = require('https');
 const http = require('http');
 const fs = require('fs');
-const Router = require('./server/modules/router');
-const log = require('./server/modules/logger');
-const Websocket = require('./server/modules/websocket');
-const Stun = require('./server/stun');
-const Turn = require('./server/turn');
+const Router = require('./servers/modules/router');
+const log = require('./servers/modules/logger');
+const SocketManager = require('./servers/modules/socketManager');
+const Websocket = require('./servers/modules/websocket');
+const Stun = require('./servers/stun');
+const Turn = require('./servers/turn');
 
 const options = {
-    key: fs.readFileSync('./server/ssl/keys/privkey1.pem'),
-    cert: fs.readFileSync('./server/ssl/keys/cert1.pem')
+    key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
+    cert: fs.readFileSync('./servers/ssl/keys/cert1.pem')
 };
 
 const router = new Router();
@@ -24,10 +25,11 @@ router.add('GET','/',()=>{
     }
 })
 
+const socketManager = new SocketManager();
 const onHttpsServerUpgarde = (req, socket) => {
     const {url} = req;
     if(url==='/webrtc'){
-        const websocket = new Websocket();
+        const websocket = new Websocket(socketManager);
         websocket.init(req,socket);
     }
 }
