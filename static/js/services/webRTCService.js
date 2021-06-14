@@ -1,9 +1,12 @@
 class WebRTCService{
 	constructor(){
 		this.localPeers = new Array();
+		this.pcType = null;
 		this.targetPeer = null;
+		this.iceCount = 0;
 		this.channels = new Array();
 		this.webSocket = new WebSocket("wss://chat.yatata.xyz/webrtc");
+		this.stunUrl = 'stun:chat.yatata.xyz:3478';
 		this.stream = null;
 		navigator.mediaDevices.getUserMedia(
 			{
@@ -64,14 +67,8 @@ class WebRTCService{
 		}
 	}
 
-	initPeer = () => {
-		const pc = new RTCPeerConnection({
-			iceServers:[
-				{
-					'urls': ['stun:chat.yatata.xyz:3478', 'stun:chat.yatata.xyz:41234']
-				}
-			]
-		});
+	initPeer = configure => {
+		const pc = new RTCPeerConnection(configure);
 		this.localPeers.push(pc);
 		if(this.stream){
 			this.stream.getTracks()
@@ -95,14 +92,30 @@ class WebRTCService{
 
 	createLocalPeer = () => {
 		this.webSocket.addEventListener('message', this.onMessage);
-		const pc = this.initPeer();
+		this.pcType = 'local';
+		const configure = {
+			iceServers: [
+				{
+					urls: this.stunUrl
+				}
+			]
+		}
+		const pc = this.initPeer(configure);
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.localOnNegotiationNeeded);
 	}
 
 	createRemotePeer = () => {
 		this.webSocket.addEventListener('message', this.onMessage);
-		const pc = this.initPeer();
+		this.pcType = 'remote';
+		const configure = {
+			iceServers: [
+				{
+					urls: this.stunUrl
+				}
+			]
+		}
+		const pc = this.initPeer(configure);
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.remoteOnNegotiationNeeded);
 	}
@@ -159,8 +172,21 @@ class WebRTCService{
 
 	onIceCandidate = e => {
 		this.targetPeer = e.target;
-		if(e.candidate){
-			this.webSocket.send(JSON.stringify({ice:e.candidate}));
+		if(this.iceCount < 20){
+			if(e.candidate){
+				this.webSocket.send(JSON.stringify({ice:e.candidate}));
+				this.iceCount++;
+			}
+		}
+		else{
+			this.stunUrl = 'stun:chat.yatata.xyz:41234';
+			this.closeAllPeerConnection();
+			if(this.pcType === 'local'){
+				setTimeout(this.createLocalPeer(), 1000);				  
+			}
+			else if(this.pcType === 'remote'){
+				this.createRemotePeer();
+			}
 		}
 	}
 	
