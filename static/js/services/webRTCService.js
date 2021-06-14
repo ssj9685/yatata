@@ -69,6 +69,7 @@ class WebRTCService{
 			iceServers:[
 				{
 					'urls': ['stun:chat.yatata.xyz:3478', 'stun:chat.yatata.xyz:41234']
+					
 				}
 			]
 		});
