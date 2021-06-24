@@ -1,12 +1,11 @@
 class WebRTCService{
-	constructor(){
-		this.localPeers = new Array();
-		this.pcType = null;
+	constructor({websocketUrl, stunUrls}){
+		this.currentPeers = new Array();
 		this.targetPeer = null;
-		this.iceCount = 0;
 		this.channels = new Array();
-		this.webSocket = new WebSocket("wss://chat.yatata.xyz/webrtc");
-		this.stunUrl = 'stun:chat.yatata.xyz:3478';
+		this.webSocket = new WebSocket(websocketUrl);
+		this.webSocket.addEventListener('message', this.onMessage);
+		this.stunUrls = stunUrls
 		this.stream = null;
 		navigator.mediaDevices.getUserMedia(
 			{
@@ -67,9 +66,17 @@ class WebRTCService{
 		}
 	}
 
-	initPeer = configure => {
-		const pc = new RTCPeerConnection(configure);
-		this.localPeers.push(pc);
+	initPeer = () => {
+		const pc = new RTCPeerConnection(
+			{
+				iceServers: [
+					{
+						urls: this.stunUrls
+					}
+				]
+			}
+		);
+		this.currentPeers.push(pc);
 		if(this.stream){
 			this.stream.getTracks()
 			.forEach(track => pc.addTrack(track, this.stream));
@@ -91,31 +98,13 @@ class WebRTCService{
 	}
 
 	createLocalPeer = () => {
-		this.webSocket.addEventListener('message', this.onMessage);
-		this.pcType = 'local';
-		const configure = {
-			iceServers: [
-				{
-					urls: this.stunUrl
-				}
-			]
-		}
-		const pc = this.initPeer(configure);
+		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.localOnNegotiationNeeded);
 	}
 
 	createRemotePeer = () => {
-		this.webSocket.addEventListener('message', this.onMessage);
-		this.pcType = 'remote';
-		const configure = {
-			iceServers: [
-				{
-					urls: this.stunUrl
-				}
-			]
-		}
-		const pc = this.initPeer(configure);
+		const pc = this.initPeer();
 		pc.addEventListener('track', this.onAddTrack);
 		pc.addEventListener('negotiationneeded',this.remoteOnNegotiationNeeded);
 	}
@@ -172,35 +161,22 @@ class WebRTCService{
 
 	onIceCandidate = e => {
 		this.targetPeer = e.target;
-		if(this.iceCount < 20){
-			if(e.candidate){
-				this.webSocket.send(JSON.stringify({ice:e.candidate}));
-			}
-			this.iceCount++;
-		}
-		else{
-			this.stunUrl = 'stun:chat.yatata.xyz:41234';
-			this.closeAllPeerConnection();
-			if(this.pcType === 'local'){
-				setTimeout(this.createLocalPeer(), 1000);				  
-			}
-			else if(this.pcType === 'remote'){
-				this.createRemotePeer();
-			}
+		if(e.candidate){
+			this.webSocket.send(JSON.stringify({ice:e.candidate}));
 		}
 	}
 	
 	closeAllPeerConnection = () => {
-		for(const pc of this.localPeers){
+		for(const pc of this.currentPeers){
 			pc.close();
 		}
-		this.localPeers = new Array();
+		this.currentPeers = new Array();
 		this.targetPeer = null;
 		const videos = document.querySelectorAll('video');
 		for(const video of videos){
 			document.body.removeChild(video);
 		}
 		this.removeAllStreams();
-		alert('all connection reset!');
+		console.log('all connection reset!');
 	}
 }
