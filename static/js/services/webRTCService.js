@@ -175,8 +175,8 @@ class WebRTCService{
 		if(this.iceCount < 20){
 			if(e.candidate){
 				this.webSocket.send(JSON.stringify({ice:e.candidate}));
-				this.iceCount++;
 			}
+			this.iceCount++;
 		}
 		else{
 			this.stunUrl = 'stun:chat.yatata.xyz:41234';
