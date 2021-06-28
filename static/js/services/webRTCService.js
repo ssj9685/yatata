@@ -36,7 +36,6 @@ class WebRTCService{
 					let channel = this.targetPeer.createDataChannel('chat');
 					console.log(channel);
 					channel.addEventListener('open',()=>{
-						this.webSocket.close();
 						channel.send('offer');
 					});
 					channel.addEventListener('message', e=>{
