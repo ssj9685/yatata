@@ -19,6 +19,7 @@ module.exports = function Websocket(socketManager){
 			this.onClose();
 			this.handshake();
 			this.connect();
+			this.socketManager.set([this.req.url], this.socket);
 		}
 		else{
 			
@@ -38,7 +39,6 @@ module.exports = function Websocket(socketManager){
 				'Connection: Upgrade\r\n'+
 				'Sec-WebSocket-Accept: '+key+'\r\n'+
 				'\r\n');
-		this.socketManager.set(this.socket);
 	}
 	this.connect = () => {
 		/**
@@ -60,7 +60,7 @@ module.exports = function Websocket(socketManager){
 	}
 	this.onClose = () => {
 		this.socket.on('close',()=>{
-            this.socketManager.delete(this.socket);
+            this.socketManager.delete([this.req.url], this.socket);
         })
 	}
 
@@ -73,34 +73,40 @@ module.exports = function Websocket(socketManager){
 		const mask = Buffer.alloc(4);
 		let decoded;
 		if(length < 126){
-			decoded = Buffer.alloc(length);
+			let payloadLength = length;
+			decoded = Buffer.alloc(payloadLength);
 			for(let i=0;i<4;++i)mask[i]=encoded[i+2];
-			for(let i=0;i<length;++i)decoded[i] = encoded[i+6] ^ mask[i%4];
+			for(let i=0;i<payloadLength;++i)decoded[i] = encoded[i+6] ^ mask[i%4];
+			console.log(decoded.toString('utf8'));
 			let sendBuf = Buffer.alloc(2);
 			sendBuf[0] = 0x81;
 			sendBuf[1] = length;
 			sendBuf = Buffer.concat([sendBuf, decoded]);
-			this.socket.write(sendBuf);
+			const routes = [this.req.url]
+			this.socketManager.pushMessage(routes, socket, sendBuf);
+			this.socketManager.relay(routes, this.socket);
 		}
 		else if(length === 126){
-			length = encoded.readUInt16BE(2);
-			decoded = Buffer.alloc(length);
+			let payloadLength = encoded.readUInt16BE(2);
+			decoded = Buffer.alloc(payloadLength);
 			for(let i=0;i<4;++i)mask[i]=encoded[i+4];
-			for(let i=0;i<length;++i)decoded[i] = encoded[i+8] ^ mask[i%4];
+			for(let i=0;i<payloadLength;++i)decoded[i] = encoded[i+8] ^ mask[i%4];
 			console.log(decoded.toString('utf8'));
 			let sendBuf = Buffer.alloc(4);
 			sendBuf[0] = 0x81;
-			sendBuf[1] = 126;
+			sendBuf[1] = length;
 			sendBuf[2] = encoded[2];
 			sendBuf[3] = encoded[3];
 			sendBuf = Buffer.concat([sendBuf, decoded]);
-			this.socketManager.sendBufToOthers(this.socket, sendBuf);
+			const routes = [this.req.url]
+			this.socketManager.pushMessage(routes, this.socket, sendBuf);
+			this.socketManager.relay(routes, this.socket);
 		}
 		else if(length === 127){
-			length = encoded.readBigUInt64BE(2);
-			decoded = Buffer.alloc(length);
+			let payloadLength = encoded.readBigUInt64BE(2);
+			decoded = Buffer.alloc(payloadLength);
 			for(let i=0;i<4;++i)mask[i]=encoded[i+8];
-			for(let i=0;i<length;++i)decoded[i] = encoded[i+14] ^ mask[i%4];
+			for(let i=0;i<payloadLength;++i)decoded[i] = encoded[i+14] ^ mask[i%4];
 			console.log(decoded.toString('utf8'));
 		}
 	}

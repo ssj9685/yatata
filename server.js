@@ -26,13 +26,10 @@ router.add('GET','/',()=>{
     }
 })
 
-const socketManager = new SocketManager();
+const websocketManager = new SocketManager();
 const onHttpsServerUpgarde = (req, socket) => {
-    const {url} = req;
-    if(url==='/webrtc'){
-        const websocket = new Websocket(socketManager);
-        websocket.init(req,socket);
-    }
+    const websocket = new Websocket(websocketManager);
+    websocket.init(req, socket);
 }
 
 const httpsServer = https.createServer(options);
@@ -51,5 +48,6 @@ stun.bind(3478);
 const turn = new Turn();
 turn.bind(41234);
 
-const relay = new Relay();
+const relaySocketManager = new SocketManager();
+const relay = new Relay(relaySocketManager);
 relay.bind(41235);
