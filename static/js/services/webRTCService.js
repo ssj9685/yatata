@@ -124,6 +124,7 @@ class WebRTCService{
 			id: 'remote',
 			cssText: `
 				max-width:100vw;
+				max-height:calc(100vh - 80px);
 			`,
 			stream: e.streams[0],
 			muted: false
