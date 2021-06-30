@@ -10,8 +10,7 @@ module.exports = function Relay(socketManager){
     this.udpSocket.on('message', (udpMessage, rinfo) => {
         const routes = [rinfo.address, rinfo.port];
         this.socketManager.set(routes, this.udpSocket);
-        this.socketManager.pushMessage(routes, this.udpSocket, udpMessage);
-        this.socketManager.relay(routes, this.udpSocket);
+        this.socketManager.relay(routes, this.udpSocket, udpMessage);
     });
 
     this.bind = port => this.udpSocket.bind(port);

@@ -3,20 +3,31 @@ class ButtonComponent extends HTMLElement{
         return [];
     }
     constructor(){
-        super();
+        let buttonComponent = super();
+        buttonComponent.style.cssText = `
+            
+        `
         const shadow = this.attachShadow({mode: 'closed'});
         this.getShadow = () => shadow;
         const style = document.createElement('style');
         style.innerHTML = `
-            
+            #buttonContainer{
+                display:flex;
+                justify-content:center;
+                align-items: center;
+                margin-bottom:16px;
+            }
+            .callbtngroup{
+                width:100px;
+                height:60px;
+            }
         `
         const div = document.createElement('div');
+        div.id = 'buttonContainer';
         div.innerHTML = `
-            <div>
-                <button id="createbtn">create</button>
-                <button id="joinbtn">join</button>
-                <button id="hangupbtn">hangup</button>
-            </div>
+            <button class="callbtngroup" id="createbtn">create</button>
+            <button class="callbtngroup" id="joinbtn">join</button>
+            <button class="callbtngroup" id="closebtn">hangup</button>
         `
         shadow.appendChild(style);
         shadow.appendChild(div);
@@ -42,13 +53,13 @@ class ButtonComponent extends HTMLElement{
     
     webRtcHandler = () => {
         const shadow = this.getShadow();
-        const joinbtn = shadow.getElementById("joinbtn");
         const createbtn = shadow.getElementById("createbtn");
-        const hangupbtn = shadow.getElementById("hangupbtn");
+        const joinbtn = shadow.getElementById("joinbtn");
+        const closebtn = shadow.getElementById("closebtn");
 
         const webRtc = window.webRtcService;
-        joinbtn.addEventListener('click', webRtc.createLocalPeer);
-        createbtn.addEventListener('click', webRtc.createRemotePeer);
-        hangupbtn.addEventListener('click', webRtc.closeAllPeerConnection);
+        createbtn.addEventListener('click', webRtc.createPeer);
+        joinbtn.addEventListener('click', webRtc.joinPeer);
+        closebtn.addEventListener('click', webRtc.closeAllPeer);
     }
 }

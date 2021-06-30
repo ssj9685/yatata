@@ -12,9 +12,8 @@ class VideoContainer extends HTMLElement{
                 display: grid;
                 align-items: center;
                 justify-content: center;
-                position:absolute;
-                width: 100%;
-                height: 100%;
+                justify-self: center;
+                width: 100vw;
                 z-index: -1;
             }
         `

@@ -1,32 +1,28 @@
 module.exports = function SocketManager(){
-    this.socketRoute = new Map();
+    this.socketInfos = new Map();
 
     this.set = (routes, socket) => {
-        let focus = this.socketRoute;
-        for(const route of routes){
-            if(!focus.has(route)){
-                focus.set(route, new Map());
-                focus = focus.get(route);
-            }
-            else{
-                focus = focus.get(route);
-            }
+        let focus = this.socketInfos;
+        let route = routes.join(':');
+        if(!focus.has(route)){
+            focus.set(route, new Map());
+            focus = focus.get(route);
+        }
+        else{
+            focus = focus.get(route);
         }
         if(!focus.has(socket)){
             focus.set(socket, new Array());
         }
     }
 
-    this.pushMessage = (routes, socket, message) => {
-        const messages = this.focus(routes).get(socket);
-        messages.push(message);
-    }
+    this.pushMessage = (routes, socket, message) => this.focus(routes).get(socket).push(message);
 
     this.delete = (routes, socket) => {
         this.focus(routes).delete(socket);
     }
 
-    this.relay = (routes, socket) => {
+    this.broadcast = (routes, socket) => {
         let sockets = this.focus(routes);
         let message = sockets.get(socket).shift();
         for(const sock of sockets.keys()){
@@ -36,11 +32,16 @@ module.exports = function SocketManager(){
         }
     }
 
-    this.focus = routes => {
-        let focus = this.socketRoute;
-        for(const route of routes){
-            focus = focus.get(route);
+    this.relay = (routes, socket, message) => {
+        let route = routes.join(':');
+        for(const socketInfo of this.socketInfos){
+            const [r, sockets] = socketInfo;
+            if(route !== r){
+                const [addr, port] = r.split(':');
+                socket.send(message, Number(port), addr);
+            }
         }
-        return focus;
     }
+
+    this.focus = routes => this.socketInfos.get(routes.join(':'));
 }

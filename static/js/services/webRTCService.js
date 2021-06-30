@@ -1,10 +1,10 @@
 class WebRTCService{
-	constructor({websocketUrl, stunUrls}){
+	constructor(stunUrls){
 		this.currentPeers = new Array();
 		this.targetPeer = null;
 		this.channels = new Array();
-		this.webSocket = new WebSocket(websocketUrl);
-		this.webSocket.addEventListener('message', this.onMessage);
+		this.websocketUrl = "wss://chat.yatata.xyz/";
+		this.websocket = null;
 		this.stunUrls = stunUrls
 		this.stream = null;
 		navigator.mediaDevices.getUserMedia(
@@ -27,35 +27,15 @@ class WebRTCService{
 					.catch(e=>{
 						alert("offer failaure: ",e.name);
 					});
-
 					this.targetPeer.createAnswer()
 					.then(description => {
 						this.targetPeer.setLocalDescription(description);
-						this.webSocket.send(JSON.stringify(description));
+						this.websocket.send(JSON.stringify(description));
 					});
-					let channel = this.targetPeer.createDataChannel('chat');
-					console.log(channel);
-					channel.addEventListener('open',()=>{
-						channel.send('offer');
-					});
-					channel.addEventListener('message', e=>{
-						console.log(e.data);
-					})
-					this.channels.push(channel);
 				}
 				else if(message.type === "answer"){
 					this.targetPeer.setRemoteDescription(message)
 					.catch(e=>alert("answer failaure: ", e.name));
-					this.targetPeer.addEventListener('datachannel',e=>{
-						let channel = e.channel;
-						channel.addEventListener('open',e=>{
-							channel.send('answer');
-						});
-						channel.addEventListener('message',e=>{
-							console.log(e.data);
-						});
-						this.channels.push(channel);
-					})
 				} 
 				else if(message.ice){
 					this.targetPeer.addIceCandidate(message.ice)
@@ -66,6 +46,7 @@ class WebRTCService{
 	}
 
 	initPeer = () => {
+		this.initWebsocket();
 		const pc = new RTCPeerConnection(
 			{
 				iceServers: [
@@ -81,6 +62,7 @@ class WebRTCService{
 			.forEach(track => pc.addTrack(track, this.stream));
 		}
 		pc.addEventListener('icecandidate', this.onIceCandidate);
+		pc.addEventListener('track', this.onAddTrack);
 		this.addStream({
 			id: 'local',
 			cssText: `
@@ -96,24 +78,52 @@ class WebRTCService{
 		return pc;
 	}
 
-	createLocalPeer = () => {
-		const pc = this.initPeer();
-		pc.addEventListener('track', this.onAddTrack);
-		pc.addEventListener('negotiationneeded',this.localOnNegotiationNeeded);
+	initWebsocket = () => {
+		let id = prompt('please input peer ID');
+		this.websocket = new WebSocket(this.websocketUrl + id);
+		this.websocket.addEventListener('message', this.onMessage);
 	}
 
-	createRemotePeer = () => {
-		const pc = this.initPeer();
-		pc.addEventListener('track', this.onAddTrack);
-		pc.addEventListener('negotiationneeded',this.remoteOnNegotiationNeeded);
+	createPeer = () => this.initPeer().addEventListener('negotiationneeded',this.onCreate);
+	joinPeer = () => this.initPeer().addEventListener('negotiationneeded',this.onJoin);
+
+	onCreate = e => {
+		this.targetPeer = e.target;
+		this.targetPeer.addEventListener('datachannel',e=>{
+			let channel = e.channel;
+			channel.addEventListener('open',e=>{
+				channel.send('your join in');
+			});
+			channel.addEventListener('message',e=>{
+				console.log(e.data);
+			});
+		})
+	}
+
+	onJoin = e => {
+		this.targetPeer = e.target;
+		let channel = this.targetPeer.createDataChannel('chat');
+		channel.addEventListener('open',()=>{
+			channel.send('your host');
+			this.channels.push(channel);
+		});
+		channel.addEventListener('message', e=>{
+			console.log(e.data);
+		})
+		this.websocket.addEventListener('open',()=>{
+			this.targetPeer.createOffer()
+			.then(description => {
+				this.targetPeer.setLocalDescription(description);
+				this.websocket.send(JSON.stringify(description));
+			});
+		})
 	}
 
 	onAddTrack = e => {
 		this.addStream({
 			id: 'remote',
 			cssText: `
-				width:auto;
-				height:auto;
+				max-width:100vw;
 			`,
 			stream: e.streams[0],
 			muted: false
@@ -139,43 +149,35 @@ class WebRTCService{
 		}
 	}
 
-	removeAllStreams = () => {
+	removeAllVideos = () => {
 		const shadow = document.querySelector('video-container').getShadow();
 		const videoContainer = shadow.getElementById('videoContainer');
 		videoContainer.innerText = '';
 	}
 
-	localOnNegotiationNeeded = e => {
-		this.targetPeer = e.target;
-		this.targetPeer.createOffer()
-		.then(description => {
-			this.targetPeer.setLocalDescription(description);
-			this.webSocket.send(JSON.stringify(description));
-		});
-	}
-
-	remoteOnNegotiationNeeded = e => {
-		this.targetPeer = e.target;
-	}
-
 	onIceCandidate = e => {
 		this.targetPeer = e.target;
 		if(e.candidate){
-			this.webSocket.send(JSON.stringify({ice:e.candidate}));
+			this.websocket.send(JSON.stringify({ice:e.candidate}));
 		}
 	}
 	
-	closeAllPeerConnection = () => {
+	closeAllPeer = () => {
 		for(const pc of this.currentPeers){
 			pc.close();
 		}
+		for(const channel of this.channels){
+			channel.close();
+		}
 		this.currentPeers = new Array();
+		this.channels = new Array();
 		this.targetPeer = null;
 		const videos = document.querySelectorAll('video');
 		for(const video of videos){
 			document.body.removeChild(video);
 		}
-		this.removeAllStreams();
+		this.removeAllVideos();
 		console.log('all connection reset!');
+		this.websocket.close();
 	}
 }
