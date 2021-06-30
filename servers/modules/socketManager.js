@@ -16,15 +16,12 @@ module.exports = function SocketManager(){
         }
     }
 
-    this.pushMessage = (routes, socket, message) => this.focus(routes).get(socket).push(message);
-
     this.delete = (routes, socket) => {
         this.focus(routes).delete(socket);
     }
 
-    this.broadcast = (routes, socket) => {
+    this.broadcast = (routes, socket, message) => {
         let sockets = this.focus(routes);
-        let message = sockets.get(socket).shift();
         for(const sock of sockets.keys()){
             if(socket!==sock){
                 sock.write(message);

@@ -82,9 +82,7 @@ module.exports = function Websocket(socketManager){
 			sendBuf[0] = 0x81;
 			sendBuf[1] = length;
 			sendBuf = Buffer.concat([sendBuf, decoded]);
-			const routes = [this.req.url]
-			this.socketManager.pushMessage(routes, this.socket, sendBuf);
-			this.socketManager.broadcast(routes, this.socket);
+			this.socketManager.broadcast([this.req.url], this.socket, sendBuf);
 		}
 		else if(length === 126){
 			let payloadLength = encoded.readUInt16BE(2);
@@ -98,9 +96,7 @@ module.exports = function Websocket(socketManager){
 			sendBuf[2] = encoded[2];
 			sendBuf[3] = encoded[3];
 			sendBuf = Buffer.concat([sendBuf, decoded]);
-			const routes = [this.req.url]
-			this.socketManager.pushMessage(routes, this.socket, sendBuf);
-			this.socketManager.broadcast(routes, this.socket);
+			this.socketManager.broadcast([this.req.url], this.socket, sendBuf);
 		}
 		else if(length === 127){
 			let payloadLength = encoded.readBigUInt64BE(2);
