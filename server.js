@@ -35,7 +35,7 @@ const onHttpsServerUpgarde = (req, socket) => {
 const httpsServer = https.createServer(options);
 httpsServer.on('request', router.onRequest);
 httpsServer.on('upgrade', onHttpsServerUpgarde);
-httpsServer.listen(443, () => log("Server running on port 443"));
+httpsServer.listen(443, () => console.log("Server running on port 443"));
 
 http.createServer((req, res) => {
     res.writeHead(301, { "Location": "https://" + req.headers.host + req.url });
@@ -43,7 +43,7 @@ http.createServer((req, res) => {
 }).listen(80);
 
 const stun = new Stun();
-stun.bind(3478);
+stun.bind(41233);
 
 const turn = new Turn();
 turn.bind(41234);

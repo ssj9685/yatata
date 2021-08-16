@@ -5,6 +5,7 @@ const crypto=  require('crypto');
  */
 module.exports = function Websocket(socketManager){
 	this.socketManager = socketManager;
+
 	this.init = (req, socket) => {
 		/**
 		 * init data frame 1000(FIN) 0010(OP bin)
@@ -14,17 +15,16 @@ module.exports = function Websocket(socketManager){
 		this.socket = socket;
 
 		if(this.req.headers["upgrade"] === 'websocket'){
-			this.onData();
-			this.onError();
-			this.onClose();
+			this.eventBind();
 			this.handshake();
-			this.connect();
 			this.socketManager.set([this.req.url], this.socket);
+			this.connect();
 		}
 		else{
 			
 		}
 	}
+
 	this.handshake = () => {
 		const magicStr = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 		const websocketKey = this.req.headers["sec-websocket-key"] + magicStr;
@@ -40,28 +40,43 @@ module.exports = function Websocket(socketManager){
 				'Sec-WebSocket-Accept: '+key+'\r\n'+
 				'\r\n');
 	}
+
 	this.connect = () => {
 		/**
 		 * For initial connection packet
 		 */
-		const buf = Buffer.alloc(2);
-        buf[0] = 0x82;
+		const clientNum = this.socketManager.size([this.req.url]);
+		const length = 1;
+        const opcode = 0x82;
+		const buf = Buffer.from([opcode, length, clientNum]);
+		console.log(buf);
         this.socket.write(buf);
+		console.log('Websocket connected');
 	}
+	
 	this.onData = () => {
 		this.socket.on('data',encoded=>{
 			this.onWebRtcServiceData(encoded);
 		});
 	}
+
 	this.onError = () => {
 		this.socket.on('error',e=>{
 			console.log(e);
 		})
 	}
-	this.onClose = () => {
-		this.socket.on('close',()=>{
+
+	this.onEnd = () => {
+		this.socket.on('end',()=>{
             this.socketManager.delete([this.req.url], this.socket);
+			console.log('Websocket closed');
         })
+	}
+
+	this.eventBind = () => {
+		this.onData();
+		this.onError();
+		this.onEnd();
 	}
 
 	this.onWebRtcServiceData = (encoded) => {
@@ -70,8 +85,13 @@ module.exports = function Websocket(socketManager){
 		 */
 		let length = encoded[1]&0x7F;
 		console.log("encoded:",encoded, "length:",length);
+		if(encoded.readUInt16BE(0) === 0x8880){
+			this.socket.end();
+		}
+
 		const mask = Buffer.alloc(4);
 		let decoded;
+
 		if(length < 126){
 			let payloadLength = length;
 			decoded = Buffer.alloc(payloadLength);

@@ -23,7 +23,7 @@ module.exports = function SocketManager(){
     this.broadcast = (routes, socket, message) => {
         let sockets = this.focus(routes);
         for(const sock of sockets.keys()){
-            if(socket!==sock){
+            if(socket !== sock){
                 sock.write(message);
             }
         }
@@ -41,4 +41,5 @@ module.exports = function SocketManager(){
     }
 
     this.focus = routes => this.socketInfos.get(routes.join(':'));
+    this.size = routes =>  this.focus(routes).size;
 }
