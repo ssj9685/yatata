@@ -121,7 +121,7 @@ class WebRTCService{
 			let channel = e.channel;
 			channel.addEventListener("open", ()=>{
 				this.channels.push(channel);
-				this.websocket.close();
+				//this.websocket.close();
 			});
 			channel.addEventListener("message", e=>{
 				if(e.data === "create"){
@@ -137,7 +137,7 @@ class WebRTCService{
 		let channel = e.target.createDataChannel("chat");
 		channel.addEventListener("open",()=>{
 			this.channels.push(channel);
-			this.websocket.close();
+			//this.websocket.close();
 		});
 		channel.addEventListener("message", e=>{
 			console.log(e.data);

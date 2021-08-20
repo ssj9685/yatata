@@ -9,7 +9,7 @@ module.exports = function Stun(){
     this.udpSocket.on('error', err => console.log(err));
 
     this.udpSocket.on('message', (udpMessage, rinfo) => {
-        console.log(udpMessage, rinfo);
+        console.log("stun message: ", udpMessage, rinfo);
         const header = udpMessage;
         header.writeUIntBE(0x0101,0, 2); //success response
         header.writeUIntBE(12,2,2);

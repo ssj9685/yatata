@@ -27,9 +27,39 @@ router.add('GET','/',()=>{
 })
 
 const websocketManager = new SocketManager();
+
 const onHttpsServerUpgarde = (req, socket) => {
-    const websocket = new Websocket(websocketManager);
-    websocket.init(req, socket);
+    const websocket = new Websocket(req, socket);
+
+    websocket.on("connect", () => {
+        websocketManager.set([req.url], socket);
+        console.log("websocket connected");
+    });
+
+    websocket.on('data', data => {
+        if(data){
+            const str = data.toString("utf8");
+            if(str){
+                console.log("receieved data: ", str);
+            }
+        }
+    });
+
+    websocket.on('error', error => {
+        console.log(error);
+    });
+
+    websocket.on('end',()=>{
+        websocketManager.delete([req.url], socket);
+        console.log('Websocket closed');
+    });
+
+    websocket.on("broadcast", (req, socket, sendBuf) => {
+        websocketManager.broadcast([req.url], socket, sendBuf);
+        console.log("broadcast");
+    });
+
+    websocket.connect();
 }
 
 const httpsServer = https.createServer(options);

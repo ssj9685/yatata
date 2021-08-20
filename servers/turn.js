@@ -9,8 +9,13 @@ module.exports = function Turn(){
     this.udpSocket.on('error', err => console.log(err));
 
     this.udpSocket.on('message', (udpMessage, rinfo) => {
-        const relayInfo = {address: '111.118.80.80', port:41235}
-        console.log(udpMessage, );
+        const relayInfo = {
+            address: '111.118.80.80',
+            family: 'IPv4',
+            port: 41235,
+            size: 20
+        }
+        console.log("turn message: ", udpMessage, relayInfo);
         const header = udpMessage;
         header.writeUIntBE(0x0101,0, 2); //success response
         header.writeUIntBE(12,2,2);
