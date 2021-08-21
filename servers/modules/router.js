@@ -1,19 +1,20 @@
-const fs = require('fs');
+import fs from "fs";
 
-module.exports = function Router(){
-    this.mimeLookup = {
-        'js': 'text/javascript',
-        'css': 'text/css',
-        'png': 'image/png'
+class Router{
+    constructor(){
+        this.mimeLookup = {
+            'js': 'text/javascript',
+            'css': 'text/css',
+            'png': 'image/png'
+        }
+        this.reqRoute = {
+            'GET':{},
+            'POST':{}
+        }
     }
-    this.reqRoute = {
-        'GET':{},
-        'POST':{}
-    }
-
-    this.add = (method, url, callback) => this.reqRoute[method][url] = callback;
-
-    this.onRequest = (req, res) =>{
+    add = (method, url, callback) => this.reqRoute[method][url] = callback;
+    
+    onRequest = (req, res) =>{
         const {method, url} = req;
         this.req = req;
         this.res = res;
@@ -24,7 +25,7 @@ module.exports = function Router(){
         else this.defaultRes();
     }
 
-    this.defaultRes = () => {
+    defaultRes = () => {
         const extName = this.url.split('.')[1];
         if(this.mimeLookup[extName]){
             this.res.writeHead(200, {'Content-Type': this.mimeLookup[extName]});
@@ -36,3 +37,5 @@ module.exports = function Router(){
         }
     }
 }
+
+export default Router;

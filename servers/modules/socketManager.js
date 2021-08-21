@@ -1,7 +1,9 @@
-module.exports = function SocketManager(){
-    this.socketInfos = new Map();
+class SocketManager{
+    constructor(){
+        this.socketInfos = new Map();
+    }
 
-    this.set = (routes, socket) => {
+    set = (routes, socket) => {
         let focus = this.socketInfos;
         let route = routes.join(':');
         if(!focus.has(route)){
@@ -16,11 +18,11 @@ module.exports = function SocketManager(){
         }
     }
 
-    this.delete = (routes, socket) => {
+    delete = (routes, socket) => {
         this.focus(routes).delete(socket);
     }
 
-    this.broadcast = (routes, socket, message) => {
+    broadcast = (routes, socket, message) => {
         let sockets = this.focus(routes);
         for(const sock of sockets.keys()){
             if(socket !== sock){
@@ -29,7 +31,7 @@ module.exports = function SocketManager(){
         }
     }
 
-    this.relay = (routes, socket, message) => {
+    relay = (routes, socket, message) => {
         let route = routes.join(':');
         for(const socketInfo of this.socketInfos){
             const [r, sockets] = socketInfo;
@@ -40,6 +42,8 @@ module.exports = function SocketManager(){
         }
     }
 
-    this.focus = routes => this.socketInfos.get(routes.join(':'));
-    this.size = routes =>  this.focus(routes).size;
+    focus = routes => this.socketInfos.get(routes.join(':'));
+    size = routes =>  this.focus(routes).size;
 }
+
+export default SocketManager;

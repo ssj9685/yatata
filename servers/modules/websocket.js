@@ -1,10 +1,10 @@
-const crypto =  require('crypto');
-const EventEmitter = require("events");
+import crypto from "crypto";
+import EventEmitter from "events";
 /**
  * Reference
  * https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers
  */
-module.exports = class Websocket extends EventEmitter{
+class Websocket extends EventEmitter{
 	constructor(req, socket){
 		/**
 		 * init data frame 1000(FIN) 0010(OP bin)
@@ -18,7 +18,9 @@ module.exports = class Websocket extends EventEmitter{
 		if(this.req.headers["upgrade"] === 'websocket'){
 			this.socket.on('data', encoded => {
 				const data = this.onWebRtcServiceData(encoded);
-				this.emit("data", data);
+				if(data){
+					this.emit("data", data);
+				}
 			});
 			this.socket.on('error', error => {
 				this.emit("error", error);
@@ -109,3 +111,5 @@ module.exports = class Websocket extends EventEmitter{
 		return decoded;
 	}
 }
+
+export default Websocket;

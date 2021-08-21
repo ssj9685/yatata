@@ -1,13 +1,13 @@
-const https = require('https');
-const http = require('http');
-const fs = require('fs');
-const Router = require('./servers/modules/router');
-const log = require('./servers/modules/logger');
-const SocketManager = require('./servers/modules/socketManager');
-const Websocket = require('./servers/modules/websocket');
-const Stun = require('./servers/stun');
-const Turn = require('./servers/turn');
-const Relay = require('./servers/relay');
+import https from "https";
+import http from "http";
+import fs from "fs";
+import Stun from "./servers/stun.js"
+import Turn from "./servers/turn.js"
+import Relay from "./servers/relay.js"
+import Router from "./servers/modules/router.js"
+//import log from "./servers/modules/logger.js"
+import SocketManager from "./servers/modules/socketManager.js"
+import Websocket from "./servers/modules/websocket.js"
 
 const options = {
     key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
@@ -37,12 +37,7 @@ const onHttpsServerUpgarde = (req, socket) => {
     });
 
     websocket.on('data', data => {
-        if(data){
-            const str = data.toString("utf8");
-            if(str){
-                console.log("receieved data: ", str);
-            }
-        }
+        console.log("receieved data: ", data.toString("utf8"));
     });
 
     websocket.on('error', error => {

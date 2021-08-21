@@ -1,17 +1,21 @@
-const dgram = require('dgram');
+import dgram from "dgram";
 
-module.exports = function Relay(socketManager){
-    this.sockets = new Map();
-    this.udpSocket = dgram.createSocket('udp4');
-    this.socketManager = socketManager;
-
-    this.udpSocket.on('error', err => console.log(err));
-
-    this.udpSocket.on('message', (udpMessage, rinfo) => {
-        const routes = [rinfo.address, rinfo.port];
-        this.socketManager.set(routes, this.udpSocket);
-        this.socketManager.relay(routes, this.udpSocket, udpMessage);
-    });
-
-    this.bind = port => this.udpSocket.bind(port);
+class Relay{
+    constructor(socketManager){
+        this.sockets = new Map();
+        this.udpSocket = dgram.createSocket('udp4');
+        this.socketManager = socketManager;
+    
+        this.udpSocket.on('error', err => console.log(err));
+    
+        this.udpSocket.on('message', (udpMessage, rinfo) => {
+            const routes = [rinfo.address, rinfo.port];
+            this.socketManager.set(routes, this.udpSocket);
+            this.socketManager.relay(routes, this.udpSocket, udpMessage);
+        });
+    
+    }
+    bind = port => this.udpSocket.bind(port);
 }
+
+export default Relay;

@@ -1,0 +1,21 @@
+{
+  "name": "yatata",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssj9685/yatata.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ssj9685/yatata/issues"
+  },
+  "homepage": "https://github.com/ssj9685/yatata#readme"
+}
