@@ -1,5 +1,5 @@
-scripter("components/buttonComponent.js");
-scripter('components/videoContainer.js');
+import ButtonComponent from "../components/buttonComponent.js";
+import VideoContainer from "../components/videoContainer.js";
 
 class ComponentActions{
     constructor(){
@@ -7,3 +7,5 @@ class ComponentActions{
         customElements.define('video-container', VideoContainer);
     }
 }
+
+export default ComponentActions;

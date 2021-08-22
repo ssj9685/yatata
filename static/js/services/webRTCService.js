@@ -1,4 +1,4 @@
-class WebRTCService{
+class WebrtcService{
 	constructor(stunUrls){
 		this.currentPeers = new Array();
 		this.targetPeer = null;
@@ -218,3 +218,5 @@ class WebRTCService{
 		if(this.websocket)this.websocket.close();
 	}
 }
+
+export default WebrtcService;

@@ -23,3 +23,5 @@ class VideoContainer extends HTMLElement{
         shadow.appendChild(div);
     }
 }
+
+export default VideoContainer;

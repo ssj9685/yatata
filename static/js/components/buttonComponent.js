@@ -57,9 +57,11 @@ class ButtonComponent extends HTMLElement{
         const joinbtn = shadow.getElementById("joinbtn");
         const closebtn = shadow.getElementById("closebtn");
 
-        const webRtc = window.webRtcService;
+        const webRtc = window.webrtcService;
         createbtn.addEventListener('click', webRtc.createPeer);
         joinbtn.addEventListener('click', webRtc.joinPeer);
         closebtn.addEventListener('click', webRtc.closeAllPeer);
     }
 }
+
+export default ButtonComponent;
