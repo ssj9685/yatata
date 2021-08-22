@@ -4,10 +4,10 @@ import fs from "fs";
 import Stun from "./servers/stun.js"
 import Turn from "./servers/turn.js"
 import Relay from "./servers/relay.js"
-import Router from "./servers/modules/router.js"
-//import log from "./servers/modules/logger.js"
-import SocketManager from "./servers/modules/socketManager.js"
-import Websocket from "./servers/modules/websocket.js"
+import Router from "./modules/router.js"
+import SocketManager from "./modules/socketManager.js"
+import Websocket from "./modules/websocket.js"
+import Webrtc from "./modules/webrtc.js";
 
 const options = {
     key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
@@ -28,6 +28,8 @@ router.add('GET','/',()=>{
 
 const websocketManager = new SocketManager();
 
+const webrtc = new Webrtc();
+
 const onHttpsServerUpgarde = (req, socket) => {
     const websocket = new Websocket(req, socket);
 
@@ -37,7 +39,8 @@ const onHttpsServerUpgarde = (req, socket) => {
     });
 
     websocket.on('data', data => {
-        console.log("receieved data: ", data.toString("utf8"));
+        const decoded = webrtc.decode(data);
+        websocketManager.broadcast([req.url], socket, decoded);
     });
 
     websocket.on('error', error => {
@@ -47,11 +50,6 @@ const onHttpsServerUpgarde = (req, socket) => {
     websocket.on('end',()=>{
         websocketManager.delete([req.url], socket);
         console.log('Websocket closed');
-    });
-
-    websocket.on("broadcast", (req, socket, sendBuf) => {
-        websocketManager.broadcast([req.url], socket, sendBuf);
-        console.log("broadcast");
     });
 
     websocket.connect();

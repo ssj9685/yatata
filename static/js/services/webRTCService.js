@@ -53,12 +53,14 @@ class WebRTCService{
 		else{
 			if(e.data === "")return;
 			console.log(e.data);
+			/*
 			const fileReader = new FileReader();
 			fileReader.addEventListener("load", e => {
 				const dataview = new DataView(e.target.result);
 				this.userNum = dataview.getUint8(0);
 			});
 			fileReader.readAsArrayBuffer(e.data);
+			*/
 		}
 	}
 
