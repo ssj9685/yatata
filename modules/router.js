@@ -12,6 +12,7 @@ class Router{
             'POST':{}
         }
     }
+
     add = (method, url, callback) => this.reqRoute[method][url] = callback;
     
     onRequest = (req, res) =>{
@@ -27,8 +28,13 @@ class Router{
 
     defaultRes = () => {
         const extName = this.url.split('.')[1];
-        if(this.mimeLookup[extName]){
-            this.res.writeHead(200, {'Content-Type': this.mimeLookup[extName]});
+        const mime = this.mimeLookup[extName];
+        /**
+         * this part will be refactored
+         */
+        const staticPath = this.url.split("/")[1]
+        if(mime && staticPath === "static"){
+            this.res.writeHead(200, {'Content-Type': mime});
             fs.createReadStream('.' + this.url).pipe(this.res);
         }
         else{

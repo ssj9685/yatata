@@ -1,13 +1,13 @@
 import https from "https";
 import http from "http";
 import fs from "fs";
-import Stun from "./servers/stun.js"
-import Turn from "./servers/turn.js"
-import Relay from "./servers/relay.js"
-import Router from "./modules/router.js"
-import SocketManager from "./modules/socketManager.js"
-import Websocket from "./modules/websocket.js"
-import Webrtc from "./modules/webrtc.js";
+import Stun from "yatata/servers/stun";
+import Turn from "yatata/servers/turn"
+import Relay from "yatata/servers/relay"
+import Router from "yatata/modules/router"
+import SocketManager from "yatata/modules/socketManager"
+import Websocket from "yatata/modules/websocket"
+import Webrtc from "yatata/modules/webrtc";
 
 const options = {
     key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
