@@ -5,8 +5,8 @@
   "type": "module",
   "main": "server.js",
   "exports":{
-    "./modules/*":"./modules/*.js",
-    "./servers/*":"./servers/*.js"
+    "./modules/*":"./modules/*",
+    "./servers/*":"./servers/*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

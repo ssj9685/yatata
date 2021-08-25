@@ -1,12 +1,12 @@
 class WebrtcService{
-	constructor(stunUrls){
+	constructor(){
 		this.currentPeers = new Array();
 		this.targetPeer = null;
 		this.channels = new Array();
-		this.websocketUrl = "wss://chat.yatata.xyz/";
+		this.websocketUrl = "";
 		this.websocket = null;
 		this.userNum = 0;
-		this.stunUrls = stunUrls
+		this.stunUrls = [];
 		this.stream = null;
 		navigator.mediaDevices.getUserMedia(
 			{
@@ -111,6 +111,7 @@ class WebrtcService{
 		pc.addEventListener("negotiationneeded", this.onCreate);
 		return pc;
 	}
+	
 	joinPeer = () => {
 		const pc = this.initPeer();
 		pc.addEventListener("negotiationneeded", this.onJoin);

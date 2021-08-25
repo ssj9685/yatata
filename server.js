@@ -1,30 +1,14 @@
-import https from "https";
-import http from "http";
-import fs from "fs";
-import Stun from "yatata/servers/stun";
-import Turn from "yatata/servers/turn";
-import Relay from "yatata/servers/relay";
-import Router from "yatata/modules/router";
-import SocketManager from "yatata/modules/socketManager";
-import Websocket from "yatata/modules/websocket";
-import Webrtc from "yatata/modules/webrtc";
-
-const router = new Router();
-router.add('GET', '/', ()=>{
-    if(router.req.headers.host.replace('.yatata.xyz','') === "chat") {
-        router.res.writeHead(200, {'Content-Type': 'text/html'});
-        fs.createReadStream('./index.html').pipe(router.res);
-    }
-    else {
-        router.res.writeHead(404, {'Content-Type': 'text/html'});
-        router.res.end("404 page not found");
-    }
-});
-router.setStaticPath("/static");
-
-const websocketManager = new SocketManager();
+import Stun from "yatata/servers/stun.js";
+import Turn from "yatata/servers/turn.js";
+import Relay from "yatata/servers/relay.js";
+import Wayor from "yatata/modules/wayor.js";
+import SocketManager from "yatata/modules/socketManager.js";
+import Websocket from "yatata/modules/websocket.js";
+import Webrtc from "yatata/modules/webrtc.js";
+import HtmlCreator from "yatata/modules/htmlCreator.js";
 
 const webrtc = new Webrtc();
+const websocketManager = new SocketManager();
 
 const onHttpsServerUpgarde = (req, socket) => {
     const websocket = new Websocket(req, socket);
@@ -51,20 +35,26 @@ const onHttpsServerUpgarde = (req, socket) => {
     websocket.connect();
 }
 
-const options = {
-    key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
-    cert: fs.readFileSync('./servers/ssl/keys/cert1.pem')
-};
+const htmlCreator = new HtmlCreator();
+htmlCreator.scriptSrc = "static/js/main.js";
+const html = htmlCreator.create();
 
-const httpsServer = https.createServer(options);
-httpsServer.on('request', router.onRequest);
-httpsServer.on('upgrade', onHttpsServerUpgarde);
-httpsServer.listen(443, () => console.log("Server running on port 443"));
-
-http.createServer((req, res) => {
-    res.writeHead(301, { "Location": "https://" + req.headers.host + req.url });
-    res.end();
-}).listen(80);
+const wayor = new Wayor();
+wayor.add('GET', '/', ()=>{
+    if(wayor.req.headers.host.replace('.yatata.xyz','') === "chat") {
+        wayor.res.writeHead(200, {'Content-Type': 'text/html'});
+        wayor.res.end(html);
+    }
+    else {
+        wayor.res.writeHead(404, {'Content-Type': 'text/html'});
+        wayor.res.end("404 page not found");
+    }
+});
+wayor.setStaticPath("/static");
+wayor.redirectPort = 80;
+wayor.useRedirect = true;
+wayor.on("upgrade", onHttpsServerUpgarde);
+wayor.listen(443, () => console.log("Server running on port", 443));
 
 const stun = new Stun();
 stun.bind(41233);

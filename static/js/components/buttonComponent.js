@@ -1,12 +1,11 @@
+import WebrtcService from "../services/webRTCService.js";
+
 class ButtonComponent extends HTMLElement{
     static get observedAttributes() {
         return [];
     }
     constructor(){
-        let buttonComponent = super();
-        buttonComponent.style.cssText = `
-            
-        `
+        super();
         const shadow = this.attachShadow({mode: 'closed'});
         this.getShadow = () => shadow;
         const style = document.createElement('style');
@@ -57,11 +56,15 @@ class ButtonComponent extends HTMLElement{
         const joinbtn = shadow.getElementById("joinbtn");
         const closebtn = shadow.getElementById("closebtn");
 
-        const webRtc = window.webrtcService;
-        createbtn.addEventListener('click', webRtc.createPeer);
-        joinbtn.addEventListener('click', webRtc.joinPeer);
-        closebtn.addEventListener('click', webRtc.closeAllPeer);
+        const webrtc = new WebrtcService();
+        webrtc.stunUrls = ['stun:chat.yatata.xyz:41233', 'stun:chat.yatata.xyz:41234'];
+        webrtc.websocketUrl = "wss://chat.yatata.xyz/";
+        
+        createbtn.addEventListener('click', webrtc.createPeer);
+        joinbtn.addEventListener('click', webrtc.joinPeer);
+        closebtn.addEventListener('click', webrtc.closeAllPeer);
     }
 }
+customElements.define('button-component', ButtonComponent);
 
 export default ButtonComponent;

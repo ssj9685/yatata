@@ -1,7 +1,11 @@
-import WebrtcService from "./services/webrtcService.js";
-import ComponentActions from "./actions/componentAction.js";
+import ButtonComponent from "./components/buttonComponent.js";
+import VideoContainer from "./components/videoContainer.js";
 import InitStyle from "./actions/initStyle.js";
 
-window.webrtcService = new WebrtcService(['stun:chat.yatata.xyz:41233', 'stun:chat.yatata.xyz:41234']);
-window.componentAction = new ComponentActions();
 const initStyle = new InitStyle();
+
+const videoContainer = new VideoContainer();
+const buttonComponent = new ButtonComponent();
+
+document.body.appendChild(videoContainer);
+document.body.appendChild(buttonComponent);
