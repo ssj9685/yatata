@@ -14,30 +14,32 @@ class Router{
     }
 
     add = (method, url, callback) => this.reqRoute[method][url] = callback;
+
+    setStaticPath = url => this.staticPath = url;
     
-    onRequest = (req, res) =>{
+    onRequest = (req, res) => {
         const {method, url} = req;
         this.req = req;
         this.res = res;
         this.method = method;
         this.url = url;
         const resFunc = this.reqRoute[this.method][this.url];
-        if(resFunc) resFunc();
-        else this.defaultRes();
+        if(resFunc) {
+            resFunc();
+        }
+        else {
+            this.defaultRes();
+        }
     }
 
     defaultRes = () => {
         const extName = this.url.split('.')[1];
         const mime = this.mimeLookup[extName];
-        /**
-         * this part will be refactored
-         */
-        const staticPath = this.url.split("/")[1]
-        if(mime && staticPath === "static"){
+        if(mime && this.url.includes(this.staticPath)) {
             this.res.writeHead(200, {'Content-Type': mime});
             fs.createReadStream('.' + this.url).pipe(this.res);
         }
-        else{
+        else {
             this.res.writeHead(404, {'Content-Type': 'text/html'});
             this.res.end("404 page not found");
         }

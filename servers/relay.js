@@ -1,17 +1,16 @@
 import dgram from "dgram";
+import EventEmitter from "events";
 
-class Relay{
-    constructor(socketManager){
+class Relay extends EventEmitter{
+    constructor(){
+        super();
         this.sockets = new Map();
         this.udpSocket = dgram.createSocket('udp4');
-        this.socketManager = socketManager;
     
-        this.udpSocket.on('error', err => console.log(err));
+        this.udpSocket.on('error', error => this.emit("error", error));
     
         this.udpSocket.on('message', (udpMessage, rinfo) => {
-            const routes = [rinfo.address, rinfo.port];
-            this.socketManager.set(routes, this.udpSocket);
-            this.socketManager.relay(routes, this.udpSocket, udpMessage);
+            this.emit("message", this.udpSocket, udpMessage, rinfo);
         });
     
     }

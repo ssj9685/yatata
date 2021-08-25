@@ -2,29 +2,25 @@ import https from "https";
 import http from "http";
 import fs from "fs";
 import Stun from "yatata/servers/stun";
-import Turn from "yatata/servers/turn"
-import Relay from "yatata/servers/relay"
-import Router from "yatata/modules/router"
-import SocketManager from "yatata/modules/socketManager"
-import Websocket from "yatata/modules/websocket"
+import Turn from "yatata/servers/turn";
+import Relay from "yatata/servers/relay";
+import Router from "yatata/modules/router";
+import SocketManager from "yatata/modules/socketManager";
+import Websocket from "yatata/modules/websocket";
 import Webrtc from "yatata/modules/webrtc";
 
-const options = {
-    key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
-    cert: fs.readFileSync('./servers/ssl/keys/cert1.pem')
-};
-
 const router = new Router();
-router.add('GET','/',()=>{
-    if(router.req.headers.host.replace('.yatata.xyz','') === "chat"){
+router.add('GET', '/', ()=>{
+    if(router.req.headers.host.replace('.yatata.xyz','') === "chat") {
         router.res.writeHead(200, {'Content-Type': 'text/html'});
         fs.createReadStream('./index.html').pipe(router.res);
     }
-    else{
+    else {
         router.res.writeHead(404, {'Content-Type': 'text/html'});
         router.res.end("404 page not found");
     }
-})
+});
+router.setStaticPath("/static");
 
 const websocketManager = new SocketManager();
 
@@ -55,6 +51,11 @@ const onHttpsServerUpgarde = (req, socket) => {
     websocket.connect();
 }
 
+const options = {
+    key: fs.readFileSync('./servers/ssl/keys/privkey1.pem'),
+    cert: fs.readFileSync('./servers/ssl/keys/cert1.pem')
+};
+
 const httpsServer = https.createServer(options);
 httpsServer.on('request', router.onRequest);
 httpsServer.on('upgrade', onHttpsServerUpgarde);
@@ -72,5 +73,13 @@ const turn = new Turn();
 turn.bind(41234);
 
 const relaySocketManager = new SocketManager();
-const relay = new Relay(relaySocketManager);
+
+const relay = new Relay();
+relay.on("message", (udpSocket, udpMessage, rinfo) => {
+    const routes = [rinfo.address, rinfo.port];
+    relaySocketManager.set(routes, udpSocket);
+    relaySocketManager.relay(routes, udpSocket, udpMessage);
+    console.log("relay message: ", udpMessage);
+});
+relay.on("error", error => console.log(error));
 relay.bind(41235);
