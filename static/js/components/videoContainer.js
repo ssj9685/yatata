@@ -12,6 +12,7 @@ class VideoContainer extends HTMLElement{
                 display: grid;
                 align-items: center;
                 justify-content: center;
+                grid-template-columns: repeat( auto-fit, minmax(50px, 1fr));
                 justify-self: center;
                 width: 100vw;
                 z-index: -1;

@@ -56,13 +56,11 @@ class ButtonComponent extends HTMLElement{
         const joinbtn = shadow.getElementById("joinbtn");
         const closebtn = shadow.getElementById("closebtn");
 
-        const webrtc = new WebrtcService();
-        webrtc.stunUrls = ['stun:chat.yatata.xyz:41233', 'stun:chat.yatata.xyz:41234'];
-        webrtc.websocketUrl = "wss://chat.yatata.xyz/";
+        const webrtcService = new WebrtcService();
         
-        createbtn.addEventListener('click', webrtc.createPeer);
-        joinbtn.addEventListener('click', webrtc.joinPeer);
-        closebtn.addEventListener('click', webrtc.closeAllPeer);
+        createbtn.addEventListener('click', webrtcService.createPeer);
+        joinbtn.addEventListener('click', webrtcService.joinPeer);
+        closebtn.addEventListener('click', webrtcService.closeAllPeer);
     }
 }
 customElements.define('button-component', ButtonComponent);

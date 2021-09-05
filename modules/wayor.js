@@ -44,7 +44,8 @@ class Wayor extends EventEmitter {
         this.mimeLookup = {
             'js': 'text/javascript',
             'css': 'text/css',
-            'png': 'image/png'
+            'png': 'image/png',
+            'ico': "image/x-icon"
         }
         this.reqRoute = {
             'GET':{},
@@ -74,7 +75,7 @@ class Wayor extends EventEmitter {
     defaultRes = () => {
         const extName = this.url.split('.')[1];
         const mime = this.mimeLookup[extName];
-        if(mime && this.url.includes(this.staticPath)) {
+        if(mime && this.url.includes(this.staticPath) || this.url.includes("favicon.ico")) {
             this.res.writeHead(200, {'Content-Type': mime});
             fs.createReadStream('.' + this.url).pipe(this.res);
         }

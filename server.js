@@ -69,7 +69,7 @@ relay.on("message", (udpSocket, udpMessage, rinfo) => {
     const routes = [rinfo.address, rinfo.port];
     relaySocketManager.set(routes, udpSocket);
     relaySocketManager.relay(routes, udpSocket, udpMessage);
-    console.log("relay message: ", udpMessage);
+    //console.log("relay message: ", udpMessage);
 });
 relay.on("error", error => console.log(error));
 relay.bind(41235);
